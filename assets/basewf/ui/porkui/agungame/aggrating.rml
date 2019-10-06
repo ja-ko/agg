@@ -1,0 +1,47 @@
+
+<!--
+ * (C) Copyright 2013 Jannik "drahti" Kolodziej
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the GNU Lesser General Public License
+ * (LGPL) version 2.1 which accompanies this distribution, and is available at
+ * http://www.gnu.org/licenses/lgpl-2.1.html
+ *
+ * This code is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+-->
+<rml>
+	<head>
+		<title>options</title>
+		<link type="text/template" href="../template_ingame.rml" />
+		<link rel="stylesheet" type="text/css" href="aggoptions.rcss" />
+		<script src="starrating.as"></script>
+		<script>
+			void dontAskAgain( Element @elem, Event @evt )
+			{
+				Cvar dontAsk( "cg_agg_rating_dontask", "0", CVAR_ARCHIVE );
+				dontAsk.set( "1" );
+				
+				window.close();
+			}
+		</script>
+	</head>
+	<body template="porkui_ingame" onshow="$onStarRatingShow">
+		<div id="rating">
+			<div id="rating_text">
+				<h2>Do you enjoy our gametype?</h2> 
+				We created this gametype for you, the players. Please let us know about your opinion. You can also visit our website, and give us some more detailed feedback.
+			</div>
+			<div id="rating_stars">
+				<div id="star1" class="star" onclick="$onStarClick" />
+				<div id="star2" class="star" onclick="$onStarClick" />
+				<div id="star3" class="star" onclick="$onStarClick" />
+				<div id="star4" class="star" onclick="$onStarClick" />
+				<div id="star5" class="star" onclick="$onStarClick" />
+			</div>
+			<div id="div_buttons"><a class="button" href="http://www.kandru.de" target="_browser">Provide Feedback</a><a class="button" href="#" onclick="window.close();">Ask me later</a><a class="button" href="#" onclick="$dontAskAgain">Don't ask me again</a></div>
+		</div>
+	</body>
+</rml>

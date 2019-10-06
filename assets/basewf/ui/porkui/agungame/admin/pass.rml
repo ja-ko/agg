@@ -1,0 +1,81 @@
+
+<!--
+ * (C) Copyright 2013 Jannik "drahti" Kolodziej
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the GNU Lesser General Public License
+ * (LGPL) version 2.1 which accompanies this distribution, and is available at
+ * http://www.gnu.org/licenses/lgpl-2.1.html
+ *
+ * This code is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+-->
+<rml>
+	<head>
+		<title>adminpw</title>
+		<link type="text/template" href="../../template_ingame.rml" />
+		<link rel="stylesheet" type="text/css" href="pass.rcss" />
+		<script>
+			int pwMode = 0;
+			void onPassShow( Element @body, Event @evt )
+			{
+				URL url( window.document.URL );		
+				const Dictionary @dict = url.getParameters();
+
+				String @mode;
+				dict.get( 'mode', @mode );
+				
+				if( @mode == null )
+					window.close();
+				
+				if( mode == "1" )
+				{
+					body.getElementById( "text" ).setInnerRML( "Please enter your security certification code." );
+					body.getElementById( "btn-login" ).setInnerRML( "Login" );
+					pwMode = 1;
+				}
+				else if( mode == "2" )
+				{
+					body.getElementById( "text" ).setInnerRML( "Please enter your new password." );
+					body.getElementById( "btn-login" ).setInnerRML( "Change password" );
+					pwMode = 2;
+				}
+			}
+
+			void keydown( Element @elem, Event @evt )
+			{
+				if( @evt == null )
+					return;
+				if( evt.getType() != "keydown" )
+					return;
+				
+				if( evt.getParameter( "key_identifier", "" ) == "72" )
+					exec();
+			}
+			
+			void exec()
+			{
+				if( pwMode == 1 )
+				{
+					game.execAppend( "gtadmin auth \"" + window.document.body.getElementById( "text-password" ).getAttr( "value", "" ) + "\";" );
+					game.execAppend( "gtadmin ui;" );
+					window.close();
+				}
+				else if( pwMode == 2 )
+				{
+					game.execAppend( "gtadmin changepwself \"" + window.document.body.getElementById( "text-password" ).getAttr( "value", "" ) + "\";" );
+					game.execAppend( "gtadmin ui;" );
+					window.close();
+				}
+			}
+		</script>
+	</head>
+	<body template="porkui_ingame" onshow="$onPassShow">
+		<h1>Agungame Admin Panel</h1>
+		<div id="text"></div>
+		<input id="text-password" type="password" value="" onkeydown="$keydown" />
+		<div id="btn-login" class="button" onclick="exec();">Login</div> 
+	</body>
+</rml>

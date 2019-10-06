@@ -1,0 +1,67 @@
+
+<!--
+ * (C) Copyright 2013 Jannik "drahti" Kolodziej
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the GNU Lesser General Public License
+ * (LGPL) version 2.1 which accompanies this distribution, and is available at
+ * http://www.gnu.org/licenses/lgpl-2.1.html
+ *
+ * This code is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ */
+-->
+
+<rml>
+	<head>
+		<title>options</title>
+		<link type="text/template" href="../template_ingame.rml" />
+		<link rel="stylesheet" type="text/css" href="aggfirststeps.rcss" />
+		<script>
+
+		</script>
+	</head>
+	<!--<body template="porkui_ingame" onshow="$onOptionsShow">
+		<h1>Agungame - First Steps</h1>
+		<div id="first-steps">
+			<h2>What's different?</h2>
+			<div id="step1">
+				You may or may not 
+			</div>
+			<h2>Step 2</h2>
+			<div id="step2">
+				Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.
+			</div>
+			<h2>Step 3</h2>
+			<div id="step3">
+				Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut
+			</div>
+			<br/>
+			<a class="button" href="http://www.kandru.de" target="_browser">Visit our Website</a>
+			<br/>
+			<br/>
+			<a class="button" href="#" onclick="window.close();">Close</a>
+			<br/>
+		</div>
+		<br/>
+	</body>-->
+	<body template="porkui_ingame" onshow="$onOptionsShow">
+	<div id="div_firststeps">
+		<h1>Agungame - First Steps</h1>
+		<div id="first-steps">
+			<h2>What's different?</h2>
+			<div id="steps">Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.</div>
+			<h2>Step 2</h2>
+			<div id="steps">Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.</div>
+			<h2>Step 3</h2>
+			<div id="steps">Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.</div>
+			<div id="div_buttons">
+				<a class="button" href="http://www.kandru.de" target="_browser">Visit our Website</a> <a class="button" href="#" onclick="window.close();">Back to Game</a>
+			</div>
+		</div>
+		</div>
+	</body>
+</rml>
+

@@ -1,0 +1,66 @@
+
+<!--
+ * (C) Copyright 2013 Jannik "drahti" Kolodziej
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the GNU Lesser General Public License
+ * (LGPL) version 2.1 which accompanies this distribution, and is available at
+ * http://www.gnu.org/licenses/lgpl-2.1.html
+ *
+ * This code is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+-->
+<rml>
+	<head>
+		<title>maplocationselector</title>
+		<link rel="stylesheet" type="text/css" href="maplocation.rcss" />
+		<script src="maplocation.as"></script>
+		<script>
+			void onShow( Element @elem, Event @evt )
+			{
+				Element @container = @elem.getElementById( "container" );
+				container.css( "top", 0.5 * ( window.height - container.css( "height" ).substr(0, container.css( "height" ).locate("px", 0)).toInt() ) + "" );
+				container.css( "left", 0.5 * ( window.width - container.css( "width" ).substr(0, container.css( "width" ).locate("px", 0)).toInt() ) + "" );
+				
+				Element @container_bg = @container.clone();
+				container_bg.id = "container_bg";
+				container_bg.css( "width", container.css( "width" ) ).css( "height", container.css( "height" ) ).css( "position", "fixed" ).css( "top", container.css( "top" ) ).css( "left", container.css( "left" ) );
+				container_bg.css( "background-color", "#1f1c27b5" );
+				elem.insertChild( container_bg, elem.firstChild() );
+				
+				URL url( window.document.URL );		
+				const Dictionary @dict = url.getParameters();
+				
+				String @cmd;
+				dict.get( "cmd", @cmd );
+				if( @cmd == null )
+					return;
+				container.setAttr( "cmd", cmd );
+
+				String @own;
+				dict.get( "own", @own );
+				
+				if( @own == null )
+					return;
+					
+				int own_x = own.getToken(0).toFloat() * container.css( "width" ).substr(0, container.css( "width" ).locate("px", 0) ).toFloat();
+				int own_y = own.getToken(1).toFloat() * container.css( "height" ).substr(0, container.css( "height" ).locate("px", 0) ).toFloat();
+				
+				MapLocationSelector loc( container );
+				loc.refreshMapPicture();
+				loc.addItemOverlay( "/gfx/kandru/marker/self", own_x, own_y, 15, 15 );
+			}
+			
+			void closeMenu( Element @elem, Event @evt )
+			{
+				window.close();
+			}
+		</script>
+	</head>
+	<body onshow="$onShow">
+		<div style="position:fixed; width:100%; height:100%;" id="background" onclick="$closeMenu" />
+		<div style="position:fixed; width:500px; height:500px;" id="container" />
+	</body>
+</rml>

@@ -1,0 +1,69 @@
+
+<!--
+ * (C) Copyright 2013 Karl-Martin "Kalle" Minkner
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the GNU Lesser General Public License
+ * (LGPL) version 2.1 which accompanies this distribution, and is available at
+ * http://www.gnu.org/licenses/lgpl-2.1.html
+ *
+ * This code is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * Contributors:
+ *     Jannik "drahti" Kolodziej
+-->
+
+<rml>
+	<head>
+		<title>Statistics</title>
+		<link type="text/template" href="../template_ingame.rml" />
+		<link rel="stylesheet" type="text/css" href="statistics.rcss" />
+		<script>
+			void onStatisticsShow( Element @body, Event @evt )
+			{
+				URL url( body.ownerDocument.URL );
+				const Dictionary @dict = url.getParameters();
+
+				String @wmmname;
+				dict.get( 'wmmname', @wmmname );
+				if( @wmmname == null )
+					@wmmname = "" + "";
+
+				String @random;
+				dict.get( 'random', @random);
+				if( @random == null )
+					@random = "" + "";
+				String gametype = game.cs( CS_GAMETYPENAME );
+				body.getElementById("statistics").setAttr( "src","http://api.kandru.eu/wsw/v1/?page=main&wmmname=" + wmmname + '&gametype=' + gametype + '&rand=' + random);
+			}
+
+			void changePage(Element @body,String @page )
+			{
+				URL url( body.ownerDocument.URL );
+				const Dictionary @dict = url.getParameters();
+
+				String @wmmname;
+				dict.get( 'wmmname', @wmmname );
+				if( @wmmname == null )
+					@wmmname = "" + "";
+
+				String @random;
+				dict.get( 'random', @random);
+				if( @random == null )
+					@random = "" + "";
+
+				String gametype = game.cs( CS_GAMETYPENAME );
+				body.getElementById("statistics").setAttr( "src","http://api.kandru.eu/wsw/v1/?page=" + page +"&wmmname=" + wmmname + '&gametype=' + gametype + '&rand=' + random);
+			}
+		</script>
+	</head>
+	<body template="porkui_ingame" onshow="$onStatisticsShow">
+		<idiv id="statistics" src="" nocache="1">
+			<!-- stats go here -->
+		</idiv>
+	</body>
+</rml>
+<!-- menu_open agungame/statistics wmmname meinname -->

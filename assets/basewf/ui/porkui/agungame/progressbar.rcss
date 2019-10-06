@@ -1,0 +1,46 @@
+
+/*
+ * (C) Copyright 2013 Jannik "drahti" Kolodziej
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the GNU Lesser General Public License
+ * (LGPL) version 2.1 which accompanies this distribution, and is available at
+ * http://www.gnu.org/licenses/lgpl-2.1.html
+ *
+ * This code is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ */
+
+.progressbar_left {
+	position: absolute;
+	bg-decorator: tiled-horizontal;
+	bg-left-image-src: /gfx/kandru/progressbar/progressbar_left_left.tga 0 0 1 1;
+	bg-center-image-src: /gfx/kandru/progressbar/progressbar_left_center.tga 0 0 1 1;
+	bg-right-image-src: /gfx/kandru/progressbar/progressbar_left_right.tga 0 0 1 1;			
+}
+
+.progressbar_right {
+	position: absolute;
+	bg-decorator: tiled-horizontal;
+	bg-left-image-src: /gfx/kandru/progressbar/progressbar_right_left.tga 0 0 1 1;
+	bg-center-image-src: /gfx/kandru/progressbar/progressbar_right_center.tga 0 0 1 1;
+	bg-right-image-src: /gfx/kandru/progressbar/progressbar_right_right.tga 0 0 1 1;			
+}
+
+.progressbar_full {
+	position: absolute;
+	bg-decorator: tiled-horizontal;
+	bg-left-image-src: /gfx/kandru/progressbar/progressbar_left_left.tga 0 0 1 1;
+	bg-center-image-src: /gfx/kandru/progressbar/progressbar_left_center.tga 0 0 1 1;
+	bg-right-image-src: /gfx/kandru/progressbar/progressbar_full_right.tga 0 0 1 1;			
+}
+
+.progressbar_empty {
+	position: absolute;
+	bg-decorator: tiled-horizontal;
+	bg-left-image-src: /gfx/kandru/progressbar/progressbar_empty_left.tga 0 0 1 1;
+	bg-center-image-src: /gfx/kandru/progressbar/progressbar_right_center.tga 0 0 1 1;
+	bg-right-image-src: /gfx/kandru/progressbar/progressbar_right_right.tga 0 0 1 1;			
+}

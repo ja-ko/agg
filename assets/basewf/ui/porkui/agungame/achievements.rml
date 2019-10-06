@@ -1,0 +1,289 @@
+
+<!--
+ * (C) Copyright 2013 Jannik "drahti" Kolodziej
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the GNU Lesser General Public License
+ * (LGPL) version 2.1 which accompanies this distribution, and is available at
+ * http://www.gnu.org/licenses/lgpl-2.1.html
+ *
+ * This code is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ -->
+
+<rml>
+	<head>
+		<title>aggoptions</title>
+		<link type="text/template" href="../template_ingame.rml" />
+		<link rel="stylesheet" type="text/css" href="achievements.rcss" />
+		<link rel="stylesheet" type="text/css" href="progressbar.rcss" />
+		<script src="achievements.as"></script>
+		<script src="animations.as"></script>
+		<script src="progressbar.as"></script>
+		<script>
+
+			const int ANIM_DURATION = 200;
+
+			int top = 150;
+			int left = 85;
+			const int top_interval = 130;
+			const int left_interval = 130;
+			const int achievementsCountRow = 7;
+			int count = 0;
+			int line = 0;
+
+			void onAchievementsShow( Element @body, Event @evt )
+			{
+				AchievementsInit();
+
+				// go back to blank interface
+				body.getElementById( "achievements" ).setInnerRML( "" );
+				top = 150;
+				left = 85;
+				count = 0;
+				line = 0;
+
+				game.print( "ready to go!\n" );
+
+				// move the block to the middle of the screen
+				Element @rel = @window.document.body.getElementById("modal-block-rel");
+				Element @frame = @window.document.body.getElementById("modal-frame");
+				int frameHeight = frame.css( "height" ).toInt();
+				int screenHeight = window.height;
+				int relativeMove = (screenHeight - frameHeight ) * 0.5f - (screenHeight * 0.5f);
+				rel.css( "top", relativeMove + "px" );
+
+				URL url( body.ownerDocument.URL );
+				const Dictionary @dict = url.getParameters();
+
+				String @achievementString;
+				dict.get( 'ac', @achievementString );
+				if( @achievementString == null )
+					return;
+
+				parseAchievementString( achievementString );
+				for( uint i = 0; i < body.getElementsByClassName( "achievement" ).length(); i++ )
+				{
+					Element @cur = @body.getElementsByClassName( "achievement" )[i];
+					if( cur.tagName == "div" && cur.hasAttr( "initialtop" ) )
+					{
+						Element @selector = @body.getElementById( "selector" );
+						selector.css( "top", String(cur.getAttr( "initialtop", "0" ).toInt() - 10) ).css( "left", String(cur.css( "left" ).toInt() - 10) );
+						makeElementInvisible( selector );
+						break;
+					}
+				}
+			}
+
+			Element @currentDescription = null;
+			void onAchievementClick( Element @elem, Event @evt ) // for some reason elem is <img>
+			{
+				if( @elem == null )
+					return;
+
+				@elem = @elem.getParent();
+
+				int m_line = StringUtils::Split( elem.id, "-" )[0];
+
+				DeleteAllAnimations();
+
+				Element @descriptionBlock = @window.document.body.getElementById( "description-line-" + m_line );
+				if( @descriptionBlock == null )
+					return;
+
+				if( @currentDescription != @descriptionBlock )
+				{
+					if( @currentDescription != null )
+					{
+						Animation @anim = Animation( currentDescription, makeElementInvisible );
+						makeElementVisible( currentDescription );
+						anim.setAnimOpacities( 255, 0 );
+						anim.setAnimDuration( ANIM_DURATION / 2 );
+						anim.startAnimation();
+					}
+					@currentDescription = @descriptionBlock;
+				}
+
+				int i = 0;
+				bool done = false;
+				Element @achievements = @window.document.body.getElementById( "achievements" );
+
+				int selnewx = elem.css( "left" ).toInt() - 10;
+				int selnewy = elem.getAttr( "initialtop", "" ).toInt() - 10;
+				Element @selector = @window.document.body.getElementById( "selector" );
+				makeElementVisible( selector );
+
+				Animation @selAnim = Animation( selector );
+				selAnim.setAnimPositionsX( selector.css( "left" ).toInt(), selnewx );
+				selAnim.setAnimPositionsY( selector.css( "top" ).toInt(), selnewy );
+				selAnim.setAnimDuration( ANIM_DURATION );
+				selAnim.startAnimation();
+
+				int stage = elem.getAttr( "stage", "0" ).toInt();
+				float progress = elem.getAttr( "progress", "-1.0f" ).toFloat();
+				AchievementDescription @desc = @GetDescription( elem.getAttr( "identifier", "" ) );
+
+				while( !done )
+				{
+					for( int j = 0; j < achievementsCountRow; j++ )
+					{
+						Element @achievement = @achievements.getElementById( i + "-" + j );
+						if( @achievement == null )
+						{
+							done = true;
+							break;
+						}
+
+						if( i > m_line )
+						{
+							if( achievement.getAttr( "position", "raised" ) == "raised" )
+							{
+								Animation @anim = Animation( achievement );
+								anim.setAnimPositionsY( achievement.css( "top" ).toInt(), achievement.getAttr( "initialtop", "0" ).toInt() + desc.achievementOffset );
+								anim.setAnimDuration( ANIM_DURATION );
+								anim.startAnimation();
+								//achievement.css( "top", "" + (achievement.getAttr( "initialtop", "0" ).toInt() + desc.achievementOffset) );
+								achievement.setAttr( "position", "lowered" );
+							}
+							else
+							{
+								Animation @anim = Animation( achievement );
+								anim.setAnimPositionsY( achievement.css( "top" ).toInt(), achievement.getAttr( "initialtop", "0" ).toInt() + desc.achievementOffset );
+								anim.setAnimDuration( ANIM_DURATION );
+								anim.startAnimation();
+								//achievement.css( "top", "" + (achievement.getAttr( "initialtop", "0" ).toInt() + desc.achievementOffset) );
+							}
+						}
+						else if( i <= m_line )
+						{
+							if( achievement.getAttr( "position", "raised" ) == "lowered" )
+							{
+								Animation @anim = Animation( achievement );
+								anim.setAnimPositionsY( achievement.css( "top" ).toInt(), achievement.getAttr( "initialtop", "0" ).toInt() );
+								//achievement.css( "top", "" + achievement.getAttr( "initialtop", "0" ).toInt() );
+								anim.setAnimDuration( ANIM_DURATION );
+								anim.startAnimation();
+								achievement.setAttr( "position", "raised" );
+							}
+							else
+							{
+
+							}
+						}
+					}
+					i++;
+				}
+
+				Animation @anim = Animation( currentDescription, makeElementVisible );
+				makeElementVisible( currentDescription );
+				anim.setAnimOpacities( 0, 255 );
+				anim.setAnimDuration( ANIM_DURATION / 2 );
+				anim.startAnimation();
+
+				String descriptionRml = "<div class='achievement-title'>" + desc.name( stage ) + "</div><div class='achievement-descr'>" + desc.description( stage ) + "</div>";
+				if( progress >= 0.0f && progress <= 1.0f )
+					descriptionRml += "<div class='achievement-progress'></div>";
+				currentDescription.setInnerRML( descriptionRml );
+				if( progress >= 0.0f && progress <= 1.0f )
+				{
+					Progressbar( currentDescription.lastChild() ).setValueInstant( progress );
+				}
+
+			}
+
+			void makeElementVisible( Element @elem )
+			{
+				elem.css( "display", "block" );
+			}
+
+			void makeElementInvisible( Element @elem )
+			{
+				elem.css( "display", "none" );
+			}
+
+			void parseAchievementString( String input )
+			{
+				while( true )
+				{
+					String identifier = "";
+					int stage = -1;
+					float progress = 0.0f;
+					while( input.substr( 0, 1 ).isAlpha() )
+					{
+						identifier += input.substr( 0, 1 );
+						input = input.substr( 1 );
+						if( input.len() == 0 || !input.substr( 0, 1 ).isAlpha() )
+							break;
+					}
+					if( identifier == "" )
+						break;
+					if( input.len() < 4 )
+						break;
+
+					if( !input.substr( 0, 1 ).isNumerical() )
+						break;
+
+					stage = input.substr( 0, 1 ).toInt();
+					input = input.substr( 1 );
+					if( input.substr( 0, 1 ) != "." )
+						break;
+					input = input.substr( 1 );
+
+					if( !input.substr( 0, 2 ).isNumerical() )
+					{
+						if( input.substr( 0, 2 ) == "--" )
+							progress = -1.0f;
+						else
+							break;
+					}
+					if( progress != -1.0f )
+						progress = float( input.substr( 0, 2 ).toInt() ) / 100.0f;
+					input = input.substr( 2 );
+
+					if( @GetDescription( identifier ) != null )
+						addAchievement( GetDescription( identifier ), stage, progress );
+					if( input.len() == 0 )
+						break;
+				}
+			}
+
+			void addAchievement( AchievementDescription@ achievement, int stage, float progress )
+			{
+				String elem = "<div id='" + line + "-" + count + "' onclick='$onAchievementClick' class='achievement' identifier='" + achievement.ui_identifier + "' stage='" + stage + "' progress='" + progress + "' position='raised' initialtop='" + top + "'  style='position:absolute;top:" + top + "px;left:" + left + "px;'>";
+				elem += "<img class='achievement' src='" + achievement.image(stage) + "'/>";
+				elem += "</div>";
+
+				Element @achievements = @window.document.body.getElementById("achievements");
+
+				if( @achievements.getElementById("description-line-" + line ) == null )
+					achievements.setInnerRML( achievements.getInnerRML() + "<div style='position:absolute;top:" + int( top + top_interval ) + "px;' class='achivement-description' id='description-line-" + line + "' ></div>" );
+
+				String currentRml = achievements.getInnerRML();
+				achievements.setInnerRML( currentRml + elem );
+
+				if( count >= achievementsCountRow - 1 )
+				{
+					String currentRml = achievements.getInnerRML();
+					top += top_interval;
+					left = 85;
+					count = 0;
+					line++;
+					currentRml = achievements.getInnerRML();
+				}
+				else
+				{
+					left += left_interval;
+					count++;
+				}
+			}
+		</script>
+	</head>
+	<body template="porkui_ingame" onshow="$onAchievementsShow">
+		<h1>Agungame - Achievements</h1>
+		<div id="achievements">
+		</div>
+		<img id="selector" src="/gfx/kandru/achievements/selector" />
+	</body>
+</rml>

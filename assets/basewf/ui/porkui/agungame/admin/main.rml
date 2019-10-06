@@ -1,0 +1,410 @@
+
+<!--
+ * (C) Copyright 2013 Jannik "drahti" Kolodziej
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the GNU Lesser General Public License
+ * (LGPL) version 2.1 which accompanies this distribution, and is available at
+ * http://www.gnu.org/licenses/lgpl-2.1.html
+ *
+ * This code is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+-->
+<rml>
+	<head>
+		<title>admin</title>
+		<link type="text/template" href="../../template_ingame.rml" />
+		<link rel="stylesheet" type="text/css" href="main.rcss" />
+		<script>
+		
+			class PlayerInfo
+			{
+				String name;
+				int num;
+				Rank rank;
+				bool muted;
+				bool authed;
+				
+				PlayerInfo( String pName, int pNum, Rank pRank, bool pMuted, bool pAuthed )
+				{
+					name = pName;
+					num = pNum;
+					rank = pRank;
+					muted = pMuted;
+					authed = pAuthed;
+				}
+				
+				PlayerInfo &opAssign( PlayerInfo input )
+				{
+					name = input.name;
+					num = input.num;
+					rank = input.rank;
+					muted = input.muted;
+					authed = input.authed;
+					return this;
+				}
+				
+				bool opEquals( PlayerInfo input )
+				{
+					return input.num == num;
+				}
+			}
+			
+			class Rank
+			{
+				String identifier;
+				
+				Rank( String id )
+				{
+					identifier = id;
+				}
+				
+				bool opEquals( Rank input )
+				{
+					return input.identifier == identifier;
+				}
+				
+				Rank &opAssign( Rank input )
+				{
+					identifier = input.identifier;
+					return this;
+				}
+				
+				int opCmp( Rank input )
+				{
+					if( input.identifier == identifier )
+						return 0;
+				
+					if( identifier == "rank:superadmin" )
+					{
+						return 1;
+					}
+					else if( identifier == "rank:admin" )
+					{
+						if( input.identifier == "rank:superadmin" )
+							return -1;
+						else
+							return 1;
+					}
+					else if( identifier == "rank:moderator" )
+					{
+						return -1;
+					}
+					return -1;
+				}
+				
+				String get_name()
+				{
+					if( identifier == "rank:superadmin" )
+						return "Superadmin";
+					if( identifier == "rank:admin" )
+						return "Admin";
+					if( identifier == "rank:moderator" )
+						return "Moderator";
+					return "";
+				}
+				
+				String opAdd( String input )
+				{
+					return name + input;
+				}
+				
+				String opAdd_r( String input )
+				{
+					return input + name;
+				}
+			}
+			
+			Rank myRank;
+			
+			void onAdminShow( Element @body, Event @evt )
+			{
+				// move the block to the middle of the screen
+				Element @rel = @window.document.body.getElementById("modal-block-rel");
+				Element @frame = @window.document.body.getElementById("modal-frame");
+				int frameHeight = frame.css( "max-height" ).toInt();
+				int screenHeight = window.height;
+				int relativeMove = (screenHeight - frameHeight ) * 0.5f - (screenHeight * 0.5f);
+				rel.css( "top", relativeMove + "px" );
+				
+				URL url( body.ownerDocument.URL );		
+				const Dictionary @dict = url.getParameters();
+
+				String @authed;
+				dict.get( "authed", @authed );
+				if( @authed == null )
+					authed = "0";
+				
+				String @playerlist;
+				dict.get( "playerlist", @playerlist );
+				if( @playerlist == null )
+					playerlist = "";
+					
+				String @isOp;
+				dict.get( "isOp", @isOp );
+				if( @isOp == null )
+					isOp = "0";
+				
+				String @ownRank;
+				dict.get( "own", @ownRank );
+				if( @ownRank == null )
+					ownRank = "";
+				myRank = Rank( ownRank );
+
+				if( authed != "1" && authed != "2" )
+				{
+					window.open( "agungame/admin/pass.rml?mode=1" );
+					return;
+				}
+				else if( authed == "2" )
+				{
+					window.open( "agungame/admin/pass.rml?mode=2" );
+					return;
+				}
+				
+				body.getElementById("modal-frame").setInnerRML( "<h1>Agungame Admin Panel</h1><div id='playerlist' />" );
+				
+				Element @playerblock = @body.getElementById( "playerlist" );
+				array<PlayerInfo>@ info = ParsePlayerListString( playerlist );
+				for( uint i = 0; i < info.length; i++ )
+				{
+					bool even = ( i % 2 == 0 );
+					String elem = "<div class='playerlist-row-" + ( even ? "even" : "uneven" ) + "'><div class='playerlist-name'>" + info[i].name + "</div><div class='playerlist-num'>" + info[i].num + "</div><div class='playerlist-rank'>" + info[i].rank + "</div>";
+					if( info[i].rank < myRank )
+					{
+						elem += "<div class='playerlist-buttons'>";
+						if( info[i].muted )
+							elem += "<div class='playerlist-button button' onclick='unmute( " + info[i].num + " );'>Unmute</div>";
+						else
+							elem += "<div class='playerlist-button button' onclick='mute( " + info[i].num + " );'>Mute</div>";
+						elem += "<div class='playerlist-button button' onclick='kick( " + info[i].num + " );'>Kick</div>";
+						if( myRank > Rank( "rank:moderator" ) )
+							elem += "<div class='playerlist-button button' onclick='ban( " + info[i].num + " );'>Ban</div>";
+						if( info[i].authed && myRank >= Rank( "rank:admin" ) )
+						{
+							if( info[i].rank < Rank( "rank:moderator" ) )
+								elem += "<div class='playerlist-button button' onclick='makeModerator( " + info[i].num + " );'>Make Mod</div>";
+							else if( info[i].rank == Rank( "rank:moderator" ) )
+								elem += "<div class='playerlist-button button' onclick='dismissModerator( " + info[i].num + " );'>Release Mod</div>";
+						}
+						if( info[i].authed && myRank >= Rank( "rank:superadmin" ) )
+						{
+							if( info[i].rank < Rank( "rank:admin" ) )
+								elem += "<div class='playerlist-button button' onclick='makeAdmin( " + info[i].num + " );'>Make Admin</div>";
+							else if( info[i].rank == Rank( "rank:admin" ) )
+								elem += "<div class='playerlist-button button' onclick='dismissAdmin( " + info[i].num + " );'>Release Admin</div>";
+							if( info[i].rank < Rank( "rank:superadmin" ) )
+								elem += "<div class='playerlist-button button' onclick='makeSuperAdmin( " + info[i].num + " );'>Make Superadmin</div>";
+						}
+						elem += "</div>";
+					}
+					elem += "</div>";
+					playerblock.setInnerRML( playerblock.getInnerRML() + elem );
+				}
+				
+				String elem = "<hr class='nicehr w95p' />";
+				elem += "<div id='adminblock'>";
+				if( isOp == "0" )
+					elem += "<div class='button' onclick='becomeOperator();'>Become Operator</div>";
+					
+				elem += "<div class='button' onclick='changePw();'>Change Password</div>";
+				if( myRank > Rank( "rank:moderator" ) )
+				{
+					if( myRank >= Rank( "rank:admin" ) )
+					{
+						elem += "<div id='group-changemap' class='p-text'><input id='text-map' type='text' value='' />";
+						elem += "<div id='map-button' class='button 225px' onclick='changeMap();'>Change Map</div></div>";
+					}
+					if( myRank >= Rank( "rank:superadmin" ) )
+					{
+						elem += "<div id='group-restart'><div id='mytext1' class='p-text'>Restart current Map?</div><div id='restart-button' class='button 225px' onclick='serverRestart();'>Restart</div></div>";
+						elem += "<div id='group-execute' class='p-text'><input id='text-rcon' type='text' value='' />";
+						elem += "<div id='rcon-button' class='button 225px' onclick='execRcon();'>Execute</div></div>";
+					}
+				}
+				elem += "</div>";
+				body.getElementById("modal-frame").setInnerRML( body.getElementById("modal-frame").getInnerRML() + elem );
+			}
+			
+			array<PlayerInfo>@ ParsePlayerListString( String list )
+			{
+				array<PlayerInfo> ret;
+				
+				int i = 0;
+				while( true )
+				{
+					int playerNum;
+					String playerName;
+					Rank rank;
+					bool muted;
+					bool authed;
+					
+					if( list.getToken(i).len() == 0 || list.getToken(i+1).len() == 0 || list.getToken(i+2).len() == 0 || list.getToken(i+3).len() == 0 )
+						break;
+					
+					playerNum = list.getToken(i).toInt();
+					playerName = list.getToken(i+1);
+					if( list.getToken(i+2) == "none" )
+					{
+						rank = Rank("");
+						authed = false;
+					}
+					else if( list.getToken(i+2) == "authed" )
+					{
+						rank = Rank("");
+						authed = true;
+					}
+					else
+						rank = Rank( list.getToken(i+2) );
+					muted = list.getToken(i+3) != "0";
+					ret.insertLast( PlayerInfo( playerName, playerNum, rank, muted, authed ) );
+					i += 4;
+				}
+				return ret;
+			}
+			
+			void mute( int i )
+			{
+				game.execAppend( "gtadmin mute " + i + ";" );
+			}
+			
+			void unmute( int i )
+			{
+				game.execAppend( "gtadmin mute " + i + ";" );
+			}
+			
+			void kick( int i )
+			{
+				URL url;
+				url.setFileName( "modal_cmd_text.rml" );
+				url.setPath( "agungame/admin/" );
+				url.setParameter( "cmd", "gtadmin kick " + i );
+				url.setParameter( "text", "Please enter a reason why you want to kick this player." );
+				window.modal( url );
+			}
+			
+			void ban( int i )
+			{
+				URL url;
+				url.setFileName( "modal_cmd_text.rml" );
+				url.setPath( "agungame/admin/" );
+				url.setParameter( "cmd", "gtadmin ban " + i );
+				url.setParameter( "text", "Please enter a reason why you want to ban this player." );
+				window.modal( url );
+			}
+			
+			void changeMap()
+			{
+				if( !areYouSure( "change the map" ) )
+					return;
+				game.execAppend( "gtadmin map " + window.document.body.getElementById("text-map").getAttr("value", "" ) + ";" );
+				window.close();
+			}
+			
+			void serverRestart()
+			{
+				URL url;
+				url.setFileName( "modal_cmd_text.rml" );
+				url.setPath( "agungame/admin/" );
+				url.setParameter( "cmd", "gtadmin restart" );
+				url.setParameter( "text", "Please enter a reason why you want to restart the server." );
+				window.modal( url );
+			}
+			
+			void execRcon()
+			{
+				game.execAppend( "gtadmin rcon \"" + window.document.body.getElementById("text-rcon").getAttr("value", "" ) + "\";" );
+				window.document.body.getElementById("text-rcon").setAttr("value", "" );
+			}
+			
+			void makeModerator( int i )
+			{
+				if( !areYouSure( "make this guy a moderator" ) )
+					return;
+				game.execAppend( "gtadmin appoint " + i + " rank:moderator;" );
+			}
+			
+			void dismissModerator( int i )
+			{
+				if( !areYouSure( "dismiss this guy from his position as moderator" ) )
+					return;
+				game.execAppend( "gtadmin dismiss " + i + ";" );
+			}
+			
+			void makeAdmin( int i )
+			{
+				if( !areYouSure( "make this guy an admin" ) )
+					return;
+				game.execAppend( "gtadmin appoint " + i + " rank:admin;" );
+			}
+			
+			void dismissAdmin( int i )
+			{
+				if( !areYouSure( "dismiss this guy from his position as admin" ) )
+					return;
+				game.execAppend( "gtadmin dismiss " + i + ";" );
+			}
+			
+			void makeSuperAdmin( int i )
+			{
+				if( !areYouSure( "make this guy a superadmin" ) )
+					return;
+				game.execAppend( "gtadmin appoint " + i + " rank:superadmin;" );
+			}
+			
+			void becomeOperator()
+			{
+				game.execAppend( "gtadmin op;" );
+				window.close();
+			}
+			
+			void changePw()
+			{
+				URL url;
+				url.setFileName( "pass.rml" );
+				url.setPath( "agungame/admin/" );
+				url.setParameter( "mode", "2" );
+				window.open( url );
+			}
+			
+			bool areYouSure( String text )
+			{
+				URL url;
+				url.setFileName( "modal_basic.rml" );
+				url.setParameter( "text", "Are you sure you want to " + text + "?" );
+				window.modal( url );
+				if( window.getModalValue() == 1 )
+					return false;
+				else if( window.getModalValue() == 0 )
+					return true;
+				return false;
+			}
+			
+			void onKeyDown( Element @elem, Event @evt )
+			{
+				if( @evt == null )
+					return;
+				if( evt.getType() != "keydown" )
+					return;
+				
+				if( evt.getParameter( "key_identifier", "" ) != "72" )
+					return;
+					
+				if( @elem == null )
+					return;
+				
+				if( elem.id == "text-map" )
+					changeMap();
+				else if( elem.id == "text-rcon" )
+					execRcon();
+			}
+			
+		</script>
+	</head>
+	<body template="porkui_ingame" onshow="$onAdminShow">
+		<h1>Agungame Admin Panel</h1>
+		<div id="playerlist" />
+	</body>
+</rml>

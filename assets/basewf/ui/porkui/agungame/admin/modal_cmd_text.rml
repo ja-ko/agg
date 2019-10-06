@@ -1,0 +1,62 @@
+
+<rml>
+	<head>
+		<title>modal</title>
+		<link type="text/template" href="../../template_modal.rml" />
+		<link rel="stylesheet" type="text/css" href="modal_cmd_text.rcss" />
+		<script>
+			String execCmd = "";
+			void onModalShow( Element @body, Event @evt )
+			{
+				execCmd = "";
+				URL url( body.ownerDocument.URL );		
+				const Dictionary @dict = url.getParameters();
+
+				String @text;
+				dict.get( "text", @text );
+
+				body.getElementById( "text_content" ).setInnerRML( text );
+				body.getElementById( "input_text" ).getAttr( "value", "" );
+				
+				String @cmd;
+				dict.get( "cmd", @cmd );
+				if( @cmd != null )
+					execCmd = cmd;
+					
+				onModalShow( body, evt, execCommand );
+			}
+			
+			bool execCommand( Element @body, Event @evt )
+			{
+				if( window.document.body.getElementById("input_text").getAttr( "value", "" ) == "" )
+				{
+					return false;
+				}
+				game.execAppend( execCmd + " \"" + window.document.body.getElementById("input_text").getAttr( "value", "" ) + "\";" );
+				return true;
+			}
+			
+			void onKeyDown( Element @elem, Event @evt )
+			{
+				if( @evt == null )
+					return;
+				if( evt.getType() != "keydown" )
+					return;
+				
+				if( evt.getParameter( "key_identifier", "" ) != "72" )
+					return;
+					
+				if( @elem == null )
+					return;
+				
+				if( elem.id == "input_text" )
+					onOKClick( elem, evt );
+			}
+		</script>
+	</head>
+	<body template="porkui_modal" onshow="$onModalShow">
+		<div id="text_content">
+		</div>
+		<input id="input_text" type="text" value="" onkeydown="$onKeyDown" /> 
+	</body>
+</rml>

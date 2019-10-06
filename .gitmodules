@@ -1,0 +1,6 @@
+[submodule "servermod"]
+	path = mod
+	url = https://github.com/ja-ko/warfork-qfusion
+[submodule "assets/basewf/progs/gametypes/scriptutils"]
+	path = assets/basewf/progs/gametypes/scriptutils
+	url = https://github.com/ja-ko/wf-scriptutils

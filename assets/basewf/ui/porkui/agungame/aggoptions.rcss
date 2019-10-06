@@ -1,0 +1,138 @@
+
+/*
+ * (C) Copyright 2013 Jannik "drahti" Kolodziej
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the GNU Lesser General Public License
+ * (LGPL) version 2.1 which accompanies this distribution, and is available at
+ * http://www.gnu.org/licenses/lgpl-2.1.html
+ *
+ * This code is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ */
+
+#modal-frame {
+	width: 700px;
+}
+
+#modal-block-rel {
+	left: -382px;  /* - ( 0.5 * modal-frame width + padding-left ) */
+	top: -250px;
+}
+#options {
+	/*overflow-y: auto;*/
+}
+
+div.star {
+	width: 20px;
+	height: 20px;
+	bg-decorator: image;
+	bg-image: /ui/porkui/gfx/star_grey.png 0 0 1 1;
+	/*background-color: red;*/
+	display: inline-block;
+}
+
+div.star-selected {
+	width: 20px;
+	height: 20px;
+	bg-decorator: image;
+	bg-image: /ui/porkui/gfx/star_selected.png 0 0 1 1;
+	/*background-color: green;*/
+	display: inline-block;
+}
+
+#modelview {
+	position: relative;
+	display: block;
+	height: 125px;
+	width: 125px;
+	margin-left: auto;
+	margin-right: auto;	
+}
+
+#available-text {
+	color: red;
+}
+
+.left-arrow {
+	position: relative;
+	float: left;
+	width: 16px;
+	height: 63px;
+	padding-top: 63px;
+}
+
+.left-arrow-gfx {
+	width: 16px;
+	height: 16px;
+	bg-decorator: image;
+	bg-image: /ui/porkui/gfx/arrow_left.tga 0 0 1 1;
+}
+
+.left-arrow-gfx:hover {
+	bg-decorator: image;
+	bg-image: /ui/porkui/gfx/arrow_left_h.tga 0 0 1 1;
+}
+
+.right-arrow {
+	position: relative;
+	float: right;
+	width: 16px;
+	height: 63px;
+	padding-top: 63px;
+}
+
+.right-arrow-gfx {
+	width: 16px;
+	height: 16px;
+	bg-decorator: image;
+	bg-image: /ui/porkui/gfx/arrow_right.tga 0 0 1 1;
+}
+
+.right-arrow-gfx:hover {
+	bg-decorator: image;
+	bg-image: /ui/porkui/gfx/arrow_right_h.tga 0 0 1 1;
+}
+
+/* edit by Kalle */
+#options h2,h3 {
+	text-align:left;
+	margin-left:10px;
+}
+#options #control {
+	margin-top: 3px;
+	margin-bottom: 3px;
+	margin-left: 10px;
+}
+#options #div_title {
+	float: left;
+	width: 500px;
+	text-align: left;
+}
+#options #div_option {
+	width: 100px;
+	float: right;
+}
+#div_buttons {
+	margin-top: 10px;
+	margin-bottom: 7px;
+	float:right;
+	text-align: right;
+}
+#div_buttons .button {
+	margin-left: 10px;
+}
+#rating #rating_stars {
+	margin-top: 10px;
+	margin-bottom: 10px;
+}
+#rating_text {
+	text-align: justify;
+	margin-left: 10px;
+}
+.w99p {
+	width: 99%;
+	margin-top: 10px;
+}

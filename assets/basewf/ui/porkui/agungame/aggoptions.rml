@@ -1,0 +1,227 @@
+
+<!--
+ * (C) Copyright 2013 Jannik "drahti" Kolodziej
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the GNU Lesser General Public License
+ * (LGPL) version 2.1 which accompanies this distribution, and is available at
+ * http://www.gnu.org/licenses/lgpl-2.1.html
+ *
+ * This code is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+-->
+
+<rml>
+	<head>
+		<title>aggoptions</title>
+		<link type="text/template" href="../template_ingame.rml" />
+		<link rel="stylesheet" type="text/css" href="aggoptions.rcss" />
+		<script src="starrating.as"></script>
+		<script src="modelviewer.as"></script>
+		<script>
+			ModelViewer @viewer;
+			
+			String playerExtensions = "";
+			String availableExtensions = "";
+			String selectedExtension = "";
+			
+			String modelDirectory = "models/agungame/playerextensions/";
+			String modelFileExtension = ".md3";
+			
+			void onOptionsShow( Element @body, Event @evt )
+			{
+				onStarRatingShow( body, evt );
+
+				ElementOptionsForm @f = body.getElementById("agungame-options-form");
+				f.storeOptions();
+				
+				@viewer = ModelViewer( body.getElementById( "modelview" ) );
+				viewer.rotationX = "-70";
+				viewer.modelScale = "0.4";
+				viewer.rotationSpeedY = "150";
+				
+				URL url( body.ownerDocument.URL );		
+				const Dictionary @dict = url.getParameters();
+
+				String @models;
+				dict.get( 'models', @models );
+				
+				String @available;
+				dict.get( 'available', @available );
+				if( @available != null )
+					availableExtensions = available;
+					
+				Cvar extension( "cg_ka_modelext", "", CVAR_ARCHIVE );
+				
+				int active = -1;
+				
+				if( matchmaker.state == MM_LOGIN_STATE_LOGGED_IN )
+				{
+					body.getElementById( "achievements-content-available" ).css( "display", "block" );
+					body.getElementById( "achievements-content-unavailable" ).css( "display", "none" );
+				}
+				else
+				{
+					body.getElementById( "achievements-content-unavailable" ).css( "display", "block" );
+					body.getElementById( "achievements-content-available" ).css( "display", "none" );
+				}
+
+				if( @models != null )
+				{
+					playerExtensions = models;
+					if( extension.string != "" )
+					{
+						for( int i = 0; models.getToken( i ) != ""; i++ )
+						{
+							if( models.getToken( i ) == extension.string )
+								active = i;
+						}
+					}
+					if( active < 0 )
+						selectedExtension = models.getToken( 0 );
+					else
+						selectedExtension = models.getToken( active );
+					viewer.modelPath = extensionToPath( selectedExtension );
+					updateAvailableText();
+					if( extensionIsAvailable( selectedExtension ) )
+						extension.set( selectedExtension );
+				}
+				// body.getElementById("options").css( "max-height", (window.height - 300) + "px" );
+			}
+			
+			String extensionToPath( String extension )
+			{
+				return modelDirectory + extension + modelFileExtension;
+			}
+			
+			bool extensionIsAvailable( String extension )
+			{
+				for( int i = 0; availableExtensions.getToken( i ) != ""; i++ )
+				{
+					if( availableExtensions.getToken( i ) == extension )
+						return true;
+				}
+				return false;
+			}
+			
+			void updateAvailableText()
+			{
+				if( selectedExtension == "" )
+					return;
+				if( extensionIsAvailable( selectedExtension ) )
+				{
+					window.document.body.getElementById( "available-text" ).css( "display", "none" );
+				}
+				else
+				{
+					window.document.body.getElementById( "available-text" ).css( "display", "inline" );
+					window.document.body.getElementById( "reason" ).setInnerRML( ( matchmaker.state == MM_LOGIN_STATE_LOGGED_IN ) ? "Not unlocked!" : "Not logged in." );
+				}
+			}
+			
+			void selectNextExtension()
+			{
+				Cvar extension( "cg_ka_modelext", "", CVAR_ARCHIVE );
+				for( int i = 0; playerExtensions.getToken( i ) != ""; i++ )
+				{
+					if( playerExtensions.getToken( i ) == selectedExtension )
+					{
+						if( playerExtensions.getToken( i + 1 ) == "" )
+							selectedExtension = playerExtensions.getToken( 0 );
+						else
+							selectedExtension = playerExtensions.getToken( i + 1 );
+						break;
+					}
+				}
+				viewer.modelPath = extensionToPath( selectedExtension );
+				updateAvailableText();
+				if( extensionIsAvailable( selectedExtension ) )
+					extension.set( selectedExtension );
+			}
+			
+			void selectPreviousExtension()
+			{
+				Cvar extension( "cg_ka_modelext", "", CVAR_ARCHIVE );
+				for( int i = 0; playerExtensions.getToken( i ) != ""; i++ )
+				{
+					if( playerExtensions.getToken( i ) == selectedExtension )
+					{
+						if( i > 0 )
+						{
+							selectedExtension = playerExtensions.getToken( i - 1 );
+						}
+						else
+						{
+							int j = 0;
+							while( playerExtensions.getToken( j ) != "" )
+								j++;
+							selectedExtension = playerExtensions.getToken( j - 1 );
+						}
+						break;
+					}
+				}
+				viewer.modelPath = extensionToPath( selectedExtension );
+				updateAvailableText();
+				if( extensionIsAvailable( selectedExtension ) )
+					extension.set( selectedExtension );
+			}
+			
+		</script>
+	</head>
+	<body template="porkui_ingame" onshow="$onOptionsShow">
+		<h1>Agungame - Options</h1>
+		<div id="options">
+			<div id="controls">
+				<h2>Controls</h2>
+				<optionsform id="agungame-options-form">
+					<div id="control">
+						<div id="div_title">Automatically switch to new weapons</div>
+						<div id="div_option"><input id="autoswitch" cvar="cg_agg_autoswitch" type="checkbox" realtime="1" /></div>
+					</div>
+					<div id="control">
+						<div id="div_title">HTML EXAMPLE: Dont ask</div>
+						<div id="div_option"><input id="dontask" cvar="cg_agg_dontask" type="checkbox" realtime="1" /></div>
+					</div>
+				</optionsform>
+			</div>
+			<hr class="nicehr w99p" />
+			<div id="achievements">
+				<h2>Model extensions</h2>
+				<div id="achievements-content-available">
+					<div class="left-arrow" onclick="selectPreviousExtension();">
+						<div class="left-arrow-gfx"></div>
+					</div>
+					<div class="right-arrow" onclick="selectNextExtension();">
+						<div class="right-arrow-gfx"></div>
+					</div>
+					<div id="available-text">You can't select this model extension. Reason: <span id="reason"></span></div><br/>
+					<modelview id="modelview"></modelview>
+				</div>
+				<div id="achievements-content-unavailable">
+					<strong>You need to login if you want to use model extensions.</strong><br/><br/>
+					<a class="button" href="#" onclick="game.execAppend('disconnect\n');game.execAppend('menu_open profile\n');">Login</a>
+				</div>
+			</div>
+		</div>
+		<hr class="nicehr w99p" />
+		<div id="rating">
+			<h3>Do you enjoy our gametype?</h3> 
+			<div id="rating_text">
+				We created this gametype for you, the players. Please let us know about your opinion. You can also visit our website, and give us some more detailed feedback.
+			</div>
+			<div id="div_buttons">
+				<div id="rating_stars">
+					<div id="star1" class="star" onclick="$onStarClick" />
+					<div id="star2" class="star" onclick="$onStarClick" />
+					<div id="star3" class="star" onclick="$onStarClick" />
+					<div id="star4" class="star" onclick="$onStarClick" />
+					<div id="star5" class="star" onclick="$onStarClick" />
+				</div>
+				<a class="button" href="http://www.kandru.de" target="_browser">Write feedback</a>
+				<a class="button" href="#" onclick="window.close();">Close</a>
+			</div>
+		</div>
+	</body>
+</rml>

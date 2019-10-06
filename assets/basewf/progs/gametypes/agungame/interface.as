@@ -294,7 +294,7 @@ void AGG_InterfaceRatingSave()
 }
 
 
-bool AGG_MapSelectorTest( Client @client, String &cmdString, String &argsString, int argc )
+/*bool AGG_MapSelectorTest( Client @client, String &cmdString, String &argsString, int argc )
 {
 	Vec3 mins, maxs;
 	CM_MapBounds( mins, maxs );
@@ -331,7 +331,7 @@ bool AGG_MapSelectorTest( Client @client, String &cmdString, String &argsString,
 
 	client.execGameCommand( "cmd menu_open " + "agungame/maplocation" + " cmd \"say\" own \"" + x + " " + y + "\";\n" );
 	return true;
-}
+}*/
 
 
 // =============================================
@@ -342,7 +342,7 @@ void AGG_InterfaceInit()
 	FunctionCallCenter::RegisterCommand( "gametypemenu", AGG_ShowGamemenu );
 	FunctionCallCenter::RegisterCommand( "gtoptions", AGG_GTOptions );
 	FunctionCallCenter::RegisterCommand( "gtstats", AGG_GTStats );
-	FunctionCallCenter::RegisterCommand( "mapselector", AGG_MapSelectorTest );
+	//FunctionCallCenter::RegisterCommand( "mapselector", AGG_MapSelectorTest );
 
 	FunctionCallCenter::RegisterScoreEventListener( AGG_InterfaceHandleScoreEvent );
 

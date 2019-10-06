@@ -7,6 +7,7 @@ generic/bots.as;
 generic/items.as;
 generic/spawnpoints.as;
 generic/awards.as;
+generic/quickmenu;
 
 agungame/main.as;
 agungame/media.as;
